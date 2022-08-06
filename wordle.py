@@ -1,29 +1,40 @@
 import sys
 import re
-from collections import namedtuple
 
 
-class Wordle:
-  """
-  """
+"""
+TODO
+  1.  Need some way to represent one of the following:
+        a. include g at any position except 1
+        b. exclude g from position 1
+  2. Based on previous guess, suggest next guess (e.g., after using "ea"
+     vowels on first try, suggest words with "ous", etc
+  3. Productionize as webapp on cadizm.com
+  4. Comments and blog post with complexity analysis
+"""
 
 
 def read_corpus(infile):
-  return set(map(lambda x: x.strip(), open(infile).readlines()))
+  return set(map(lambda line: line.strip(), open(infile).readlines()))
 
 
-def prune(letters, corpus):
-  f = lambda x: len(set(x).intersection(set(letters))) == 0
-  return filter(f, corpus)
+def prune(include, exclude, corpus):
+  s = filter(lambda word: len(set(word) & set(exclude)) == 0, corpus)
+  return filter(lambda word: len(set(word) & set(include)) == len(include), s)
 
 
-def search(candidate, corpus):
-  f = lambda x: re.fullmatch(candidate, x) is not None
-  return sorted(list(filter(f, corpus)))
+def search(wordle, corpus):
+  matches = lambda candidate: re.fullmatch(wordle, candidate)
+  return sorted(list(filter(matches, corpus)))
 
 
 if __name__ == '__main__':
-  candidate = '.o.ly'
-  exclude = 'qwertuasdgbm'
+  wordle = 'a..e.'
+  include = 'eai'
+  exclude = 'grtbusd'
 
-  print(search(candidate, prune(exclude, read_corpus(sys.argv[1]))))
+  infile = './5-letter-words.txt'
+  if len(sys.argv) > 1:
+    infile = sys.argv[1]
+
+  print('\n'.join(search(wordle, prune(include, exclude, read_corpus(infile)))))
