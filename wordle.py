@@ -1,12 +1,11 @@
 import sys
 import re
+from functools import reduce
 
 
 """
 TODO
-  1.  Need some way to represent one of the following:
-        a. include g at any position except 1
-        b. exclude g from position 1
+  1. Tests
   2. Based on previous guess, suggest next guess (e.g., after using "ea"
      vowels on first try, suggest words with "ous", etc
   3. Productionize as webapp on cadizm.com
@@ -15,26 +14,62 @@ TODO
 
 
 def read_corpus(infile):
+  """
+  Read infile (dictionary with 1 word per line) and return its contents as a set.
+  """
   return set(map(lambda line: line.strip(), open(infile).readlines()))
 
 
-def prune(include, exclude, corpus):
-  s = filter(lambda word: len(set(word) & set(exclude)) == 0, corpus)
-  return filter(lambda word: len(set(word) & set(include)) == len(include), s)
+def include(letters, corpus):
+  """
+  Return words in corpus that include all letters in `letters`.
+  """
+  return set(filter(lambda word: set(word) & set(letters) == set(letters), corpus))
+
+
+def exclude(letters, corpus):
+  """
+  Return words in corpus that exclude all letters in `letters`.
+  """
+  return set(filter(lambda word: set(word) & set(letters) == set(), corpus))
+
+
+def matches(regex):
+  """
+  Return lambda returning True when its argument matches `regex1.
+  """
+  return lambda x: re.fullmatch(regex, x)
 
 
 def search(wordle, corpus):
-  matches = lambda candidate: re.fullmatch(wordle, candidate)
-  return sorted(list(filter(matches, corpus)))
+  """
+  Search words in corpus matching the regular expression specified in `wordle`.
+  """
+  return set(filter(matches(wordle), corpus))
+
+
+def union(sets):
+  """
+  Return the union of the list of sets in `sets`.
+  """
+  return reduce(lambda x, y: x.union(y), sets)
+
+
+def discard(misplaced, corpus):
+  """
+  Discard from corpus words matching regular expressions in list `misplaced`.
+  """
+  return set(corpus) - union(map(lambda wordle: search(wordle, corpus), misplaced))
 
 
 if __name__ == '__main__':
-  wordle = 'a..e.'
-  include = 'eai'
-  exclude = 'grtbusd'
-
   infile = './5-letter-words.txt'
   if len(sys.argv) > 1:
     infile = sys.argv[1]
 
-  print('\n'.join(search(wordle, prune(include, exclude, read_corpus(infile)))))
+  wordle = '....t'
+  excluded = 'greaclo'
+  included = 'tu'
+  misplaced = ['...u.']
+
+  print('\n'.join(sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))))
