@@ -6,9 +6,8 @@ from collections import defaultdict, namedtuple
 
 """
 TODO
-  1. Tests
-  2. Productionize as webapp on cadizm.com
-  3. Blog post with complexity analysis
+  1. Productionize as webapp on cadizm.com
+  2. Blog post with complexity analysis
 """
 
 
@@ -35,9 +34,9 @@ def exclude(letters, corpus):
 
 def matches(regex):
   """
-  Return lambda returning True when its argument matches `regex1`.
+  Return lambda returning True when its argument matches `regex`.
   """
-  return lambda x: re.fullmatch(regex, x)
+  return lambda x: re.fullmatch(f'^{regex}$', x)
 
 
 def search(wordle, corpus):
@@ -91,9 +90,9 @@ def tabulate(candidates):
 
 WordScore = namedtuple('WordScore', ['word', 'score'])
 
-def word_score(candidates):
+def score(candidates):
   """
-  Return a list of `WordScore`'s for words in `candidates`.
+  Return a list of `WordScore`'s for words in `candidates` in descending score order.
 
   A candidate's WordScore is the product of the tabulated letter scores in the word.
   """
@@ -106,14 +105,7 @@ def word_score(candidates):
       score *= table[index][letter]
     scores.append(WordScore(word, score))
 
-  return scores
-
-
-def score(candidates):
-  """
-  Return a list of `WordScore`'s in descending score order for words in `candidates`.
-  """
-  return sorted(word_score(candidates), key=lambda x: x.score, reverse=True)
+  return sorted(scores, key=lambda x: x.score, reverse=True)
 
 
 if __name__ == '__main__':
@@ -121,10 +113,10 @@ if __name__ == '__main__':
   if len(sys.argv) > 1:
     infile = sys.argv[1]
 
-  wordle = '..ing'
-  excluded = 'reatsouhvy'
-  included = 'gin'
-  misplaced = ['g....', '...g.', 'v....', '.y...']
+  wordle = 'g.ea.'
+  excluded = 'rt'
+  included = 'gea'
+  misplaced = ['.r...', '....t']
 
   candidates = sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))
 
