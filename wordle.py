@@ -53,7 +53,7 @@ def union(sets):
   """
   Return the union of the list of sets in `sets`.
   """
-  return reduce(lambda x, y: x.union(y), sets)
+  return reduce(lambda x, y: x.union(y), sets, set())
 
 
 def discard(misplaced, corpus):
@@ -104,10 +104,10 @@ if __name__ == '__main__':
   if len(sys.argv) > 1:
     infile = sys.argv[1]
 
-  wordle = '..t..'
-  excluded = 'greuos'
-  included = 'at'
-  misplaced = ['...a.', '....t', 'a....']
+  wordle = '..ing'
+  excluded = 'reatsouhvy'
+  included = 'gin'
+  misplaced = ['g....', '...g.', 'v....', '.y...']
 
   candidates = sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))
 
