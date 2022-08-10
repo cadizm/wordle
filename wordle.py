@@ -1,6 +1,8 @@
 import sys
 import re
 from functools import reduce
+from collections import defaultdict
+from pprint import pprint
 
 
 """
@@ -36,7 +38,7 @@ def exclude(letters, corpus):
 
 def matches(regex):
   """
-  Return lambda returning True when its argument matches `regex1.
+  Return lambda returning True when its argument matches `regex1`.
   """
   return lambda x: re.fullmatch(regex, x)
 
@@ -62,14 +64,39 @@ def discard(misplaced, corpus):
   return set(corpus) - union(map(lambda wordle: search(wordle, corpus), misplaced))
 
 
+# TODO: compute probabilities by index:
+#         - at each index, list of possible letters
+#         - probability letter is in candidates
+def statistics(candidates):
+  """
+  """
+  stats = {}
+
+  stats['letter_freq'] = defaultdict(int)
+  stats['letter_index'] = defaultdict(set)
+  for word in candidates:
+    for letter in word:
+      stats['letter_freq'][letter] += 1
+      stats['letter_index'][letter].add(word)
+
+  stats['letter_word_count'] = {}
+  for letter in stats['letter_index']:
+    stats['letter_word_count'][letter] = len(stats['letter_index'][letter])
+
+  return stats
+
+
 if __name__ == '__main__':
   infile = './5-letter-words.txt'
   if len(sys.argv) > 1:
     infile = sys.argv[1]
 
-  wordle = '....t'
-  excluded = 'greaclo'
-  included = 'tu'
-  misplaced = ['...u.']
+  wordle = '..t..'
+  excluded = 'greuos'
+  included = 'at'
+  misplaced = ['...a.', '....t', 'a....']
 
-  print('\n'.join(sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))))
+  candidates = sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))
+
+  print('\n'.join(candidates))
+  pprint(statistics(candidates))
