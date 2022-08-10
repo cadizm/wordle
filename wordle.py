@@ -2,7 +2,6 @@ import sys
 import re
 from functools import reduce
 from collections import defaultdict
-from pprint import pprint
 
 
 """
@@ -64,26 +63,40 @@ def discard(misplaced, corpus):
   return set(corpus) - union(map(lambda wordle: search(wordle, corpus), misplaced))
 
 
-# TODO: compute probabilities by index:
-#         - at each index, list of possible letters
-#         - probability letter is in candidates
-def statistics(candidates):
-  """
-  """
-  stats = {}
+def letter_score(index, candidates):
+  n = len(candidates)
 
-  stats['letter_freq'] = defaultdict(int)
-  stats['letter_index'] = defaultdict(set)
+  freq = defaultdict(int)
   for word in candidates:
-    for letter in word:
-      stats['letter_freq'][letter] += 1
-      stats['letter_index'][letter].add(word)
+    letter = word[index]
+    freq[letter] += 1
 
-  stats['letter_word_count'] = {}
-  for letter in stats['letter_index']:
-    stats['letter_word_count'][letter] = len(stats['letter_index'][letter])
+  table = defaultdict(dict)
+  for letter in freq:
+    table[index][letter] = freq[letter] / n
 
-  return stats
+  return table
+
+
+def word_score(word, table):
+  score = 1
+  for index, letter in enumerate(word):
+    score *= table[index][letter]
+
+  return (score, word)
+
+
+def score(candidates):
+  wordle_len = 5
+  table = {}
+  for index in range(wordle_len):
+    table.update(letter_score(index, candidates))
+
+  scores = []
+  for word in candidates:
+    scores.append(word_score(word, table))
+
+  return sorted(scores, key=lambda x: x[0], reverse=True)
 
 
 if __name__ == '__main__':
@@ -98,5 +111,5 @@ if __name__ == '__main__':
 
   candidates = sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))
 
-  print('\n'.join(candidates))
-  pprint(statistics(candidates))
+  for score, word in score(candidates):
+    print(f'{score:.7f} {word}')
