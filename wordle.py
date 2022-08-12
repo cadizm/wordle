@@ -1,3 +1,4 @@
+import os
 import sys
 import re
 from functools import reduce
@@ -108,17 +109,20 @@ def score(candidates):
   return sorted(scores, key=lambda x: x.score, reverse=True)
 
 
-if __name__ == '__main__':
-  infile = './5-letter-words.txt'
-  if len(sys.argv) > 1:
-    infile = sys.argv[1]
+corpus = read_corpus(os.path.abspath(os.path.join(os.path.dirname(__file__), '5-letter-words.txt')))
 
+def suggest(wordle, excluded, included, misplaced):
+  """
+  Client entrypoint for suggesting Wordle solutions.
+  """
+  return score(discard(misplaced, search(wordle, exclude(excluded, include(included, corpus)))))
+
+
+if __name__ == '__main__':
   wordle = 'g.ea.'
   excluded = 'rt'
   included = 'gea'
   misplaced = ['.r...', '....t']
 
-  candidates = sorted(discard(misplaced, search(wordle, exclude(excluded, include(included, read_corpus(infile))))))
-
-  for word_score in score(candidates):
+  for word_score in suggest(wordle, excluded, included, misplaced):
     print(f'{word_score.score:.7f} {word_score.word}')
