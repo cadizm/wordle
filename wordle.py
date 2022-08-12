@@ -77,7 +77,7 @@ def tabulate(candidates):
       4: {'g': 1.0} }
   """
   table = defaultdict(dict)
-  wordle_len = max(map(lambda x: len(x), candidates))
+  wordle_len = max(map(lambda x: len(x), candidates), default=5)
 
   for index in range(wordle_len):
     freq = defaultdict(int)
