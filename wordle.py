@@ -5,13 +5,6 @@ from functools import reduce
 from collections import defaultdict, namedtuple
 
 
-"""
-TODO
-  1. Productionize as webapp on cadizm.com
-  2. Blog post with complexity analysis
-"""
-
-
 def read_corpus(infile):
   """
   Read infile (dictionary with 1 word per line) and return its contents as a set.
