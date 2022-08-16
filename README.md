@@ -48,6 +48,7 @@ is the same, with the necessary transformations performed in the controller laye
 $ python -m unittest discover
 ```
 
-### TODO
+### Other
 
-[Blog](https://blog.cadizm.com/) post coming soon~
+See the [blog post](https://blog.cadizm.com/2022/08/15/wordle-suggestions) for
+a slightly deeper dive into the code as well as examination of the run time.
