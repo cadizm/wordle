@@ -12,13 +12,6 @@ def read_corpus(infile):
   return set(map(lambda line: line.strip(), open(infile).readlines()))
 
 
-def include(letters, corpus):
-  """
-  Return words in corpus that include all letters in `letters`.
-  """
-  return set(filter(lambda word: set(word) & set(letters) == set(letters), corpus))
-
-
 def exclude(letters, corpus):
   """
   Return words in corpus that exclude all letters in `letters`.
@@ -104,18 +97,17 @@ def score(candidates):
 
 corpus = read_corpus(os.path.abspath(os.path.join(os.path.dirname(__file__), '5-letter-words.txt')))
 
-def suggest(wordle, excluded, included, misplaced):
+def suggest(wordle, excluded, misplaced):
   """
   Client entrypoint for suggesting Wordle solutions.
   """
-  return score(discard(misplaced, search(wordle, exclude(excluded, include(included, corpus)))))
+  return score(discard(misplaced, search(wordle, exclude(excluded, corpus))))
 
 
 if __name__ == '__main__':
   wordle = 'g.ea.'
   excluded = 'rt'
-  included = 'gea'
   misplaced = ['.r...', '....t']
 
-  for word_score in suggest(wordle, excluded, included, misplaced):
+  for word_score in suggest(wordle, excluded, misplaced):
     print(f'{word_score.score:.7f} {word_score.word}')
