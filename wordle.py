@@ -12,18 +12,28 @@ def read_corpus(infile):
   return set(map(lambda line: line.strip(), open(infile).readlines()))
 
 
-def include(letters, corpus):
-  """
-  Return words in corpus that include all letters in `letters`.
-  """
-  return set(filter(lambda word: set(word) & set(letters) == set(letters), corpus))
-
-
 def exclude(letters, corpus):
   """
   Return words in corpus that exclude all letters in `letters`.
   """
   return set(filter(lambda word: set(word) & set(letters) == set(), corpus))
+
+
+def same_letter_occurrence(wordle):
+  """
+  Return lambda accepting a single argument `word` answering the following predicate: for all
+  letters shared between `word` and `wordle`, if the number of occurences of `letter` equals
+  the number of occurrences of `letter` in `wordle`, return True; False otherwise.
+  """
+  return lambda word: all([occurrence(letter, word) == occurrence(letter, wordle) \
+      for letter in set(word) & set(wordle)])
+
+
+def occurrence(letter, s):
+  """
+  Return the number of occurrences of `letter` in string `s`.
+  """
+  return sum([1 if v == letter else 0 for v in s])
 
 
 def matches(regex):
@@ -104,18 +114,22 @@ def score(candidates):
 
 corpus = read_corpus(os.path.abspath(os.path.join(os.path.dirname(__file__), '5-letter-words.txt')))
 
-def suggest(wordle, excluded, included, misplaced):
+def suggest(wordle, excluded, misplaced):
   """
   Client entrypoint for suggesting Wordle solutions.
   """
-  return score(discard(misplaced, search(wordle, exclude(excluded, include(included, corpus)))))
+  # remove letters in wordle from excluded
+  excluded = set(excluded) - set(wordle)
+  # only keep words with same letter occurrence as wordle letters
+  excluded = filter(same_letter_occurrence(wordle), exclude(excluded, corpus))
+
+  return score(discard(misplaced, search(wordle, excluded)))
 
 
 if __name__ == '__main__':
-  wordle = 'g.ea.'
-  excluded = 'rt'
-  included = 'gea'
-  misplaced = ['.r...', '....t']
+  wordle = '.o.t.'
+  excluded = 'greapusmto'
+  misplaced = ['....t']
 
-  for word_score in suggest(wordle, excluded, included, misplaced):
+  for word_score in suggest(wordle, excluded, misplaced):
     print(f'{word_score.score:.7f} {word_score.word}')

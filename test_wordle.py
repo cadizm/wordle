@@ -11,11 +11,6 @@ class WordleTestCase(unittest.TestCase):
     cls.corpus = corpus = {'bbccc', 'abddd', 'defff', 'abcde', 'ghiii', 'dgggg'}
     cls.candidates = corpus = {'great', 'glean', 'gleam', 'clean'}
 
-  def test_include(self):
-    self.assertEqual({'abddd', 'abcde'}, wordle.include('a', self.corpus))
-    self.assertEqual({'abddd', 'abcde'}, wordle.include('ad', self.corpus))
-    self.assertEqual(set(), wordle.include('adg', self.corpus))
-
   def test_exclude(self):
     self.assertEqual({'bbccc', 'defff', 'ghiii', 'dgggg'}, wordle.exclude('a', self.corpus))
     self.assertEqual({'bbccc', 'ghiii'}, wordle.exclude('ad', self.corpus))
