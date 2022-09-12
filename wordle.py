@@ -2,6 +2,7 @@ import os
 import sys
 import re
 from functools import reduce
+from itertools import chain
 from collections import defaultdict, namedtuple
 
 
@@ -10,6 +11,13 @@ def read_corpus(infile):
   Read infile (dictionary with 1 word per line) and return its contents as a set.
   """
   return set(map(lambda line: line.strip(), open(infile).readlines()))
+
+
+def include(letters, corpus):
+  """
+  Return words in corpus that include all letters in `letters`.
+  """
+  return set(filter(lambda word: set(word) & set(letters) == set(letters), corpus))
 
 
 def exclude(letters, corpus):
@@ -118,18 +126,22 @@ def suggest(wordle, excluded, misplaced):
   """
   Client entrypoint for suggesting Wordle solutions.
   """
+  # infer what must be included using wordle and misplaced
+  included = ''.join(set(chain(wordle, *misplaced)) - set('.'))
   # remove letters in wordle from excluded
-  excluded = set(excluded) - set(wordle)
-  # only keep words with same letter occurrence as wordle letters
-  excluded = filter(same_letter_occurrence(wordle), exclude(excluded, corpus))
+  exclusions = exclude(set(excluded) - set(wordle), corpus)
+  # only keep words with same letter occurrence as wordle letters when wordle overlaps excluded
+  exclusion_overlap = (set(wordle) - set('.')) & set(excluded)
+  if exclusion_overlap:
+    exclusions = filter(same_letter_occurrence(wordle), exclusions)
 
-  return score(discard(misplaced, search(wordle, excluded)))
+  return score(discard(misplaced, search(wordle, include(included, exclusions))))
 
 
 if __name__ == '__main__':
-  wordle = '.o.t.'
-  excluded = 'greapusmto'
-  misplaced = ['....t']
+  wordle = 'cla.s'
+  excluded = 'gretbin'
+  misplaced = ['...a.', '.a...', '...l.']
 
   for word_score in suggest(wordle, excluded, misplaced):
     print(f'{word_score.score:.7f} {word_score.word}')

@@ -11,6 +11,11 @@ class WordleTestCase(unittest.TestCase):
     cls.corpus = corpus = {'bbccc', 'abddd', 'defff', 'abcde', 'ghiii', 'dgggg'}
     cls.candidates = corpus = {'great', 'glean', 'gleam', 'clean'}
 
+  def test_include(self):
+    self.assertEqual({'abddd', 'abcde'}, wordle.include('a', self.corpus))
+    self.assertEqual({'abddd', 'abcde'}, wordle.include('ad', self.corpus))
+    self.assertEqual(set(), wordle.include('adg', self.corpus))
+
   def test_exclude(self):
     self.assertEqual({'bbccc', 'defff', 'ghiii', 'dgggg'}, wordle.exclude('a', self.corpus))
     self.assertEqual({'bbccc', 'ghiii'}, wordle.exclude('ad', self.corpus))
@@ -65,3 +70,22 @@ class WordleTestCase(unittest.TestCase):
       wordle.WordScore(word='great', score=0.046875)]
 
     self.assertEqual(expected, wordle.score(self.candidates))
+
+  def test_wordle_2022_09_08(self):
+    expected = set(['clays', 'class', 'claps', 'claws', 'clads', 'clams'])
+    actual = set(map(lambda word_score: word_score.word, wordle.suggest('cla.s', 'gretbin',['...a.', '.a...', '...l.'])))
+
+    self.assertEqual(expected, actual)
+
+  def test_wordle_2022_09_10(self):
+    expected = set(['jolty', 'lofty', 'volti'])
+    actual = set(map(lambda word_score: word_score.word, wordle.suggest('.o.t.', 'greapusmto',['....t'])))
+
+    self.assertEqual(expected, actual)
+
+  def test_wordle_2022_09_11(self):
+    expected = set(['tabid', 'tabla', 'tabby', 'tabun', 'tibia'])
+    actual = set(map(lambda word_score: word_score.word, wordle.suggest('.....', 'greos',
+        ['...a.', '....t', 'b....', '..a..', '...t.'])))
+
+    self.assertEqual(expected, actual)
