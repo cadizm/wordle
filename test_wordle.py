@@ -8,18 +8,18 @@ class WordleTestCase(unittest.TestCase):
 
   @classmethod
   def setUp(cls):
-    cls.corpus = corpus = {'bbccc', 'abddd', 'defff', 'abcde', 'ghiii', 'dgggg'}
-    cls.candidates = corpus = {'great', 'glean', 'gleam', 'clean'}
+    cls.lexicon = lexicon = {'bbccc', 'abddd', 'defff', 'abcde', 'ghiii', 'dgggg'}
+    cls.candidates = lexicon = {'great', 'glean', 'gleam', 'clean'}
 
   def test_include(self):
-    self.assertEqual({'abddd', 'abcde'}, wordle.include('a', self.corpus))
-    self.assertEqual({'abddd', 'abcde'}, wordle.include('ad', self.corpus))
-    self.assertEqual(set(), wordle.include('adg', self.corpus))
+    self.assertEqual({'abddd', 'abcde'}, wordle.include('a', self.lexicon))
+    self.assertEqual({'abddd', 'abcde'}, wordle.include('ad', self.lexicon))
+    self.assertEqual(set(), wordle.include('adg', self.lexicon))
 
   def test_exclude(self):
-    self.assertEqual({'bbccc', 'defff', 'ghiii', 'dgggg'}, wordle.exclude('a', self.corpus))
-    self.assertEqual({'bbccc', 'ghiii'}, wordle.exclude('ad', self.corpus))
-    self.assertEqual(set(), wordle.exclude('bdg', self.corpus))
+    self.assertEqual({'bbccc', 'defff', 'ghiii', 'dgggg'}, wordle.exclude('a', self.lexicon))
+    self.assertEqual({'bbccc', 'ghiii'}, wordle.exclude('ad', self.lexicon))
+    self.assertEqual(set(), wordle.exclude('bdg', self.lexicon))
 
   def test_matches(self):
     self.assertTrue(random.choice(ascii_letters), wordle.matches('.'))
@@ -33,11 +33,11 @@ class WordleTestCase(unittest.TestCase):
     self.assertTrue('abc', wordle.matches('abc'))
 
   def test_search(self):
-    self.assertEqual({'bbccc', 'abddd', 'abcde'}, wordle.search('.b...', self.corpus))
-    self.assertEqual({'bbccc', 'abcde'}, wordle.search('.bc..', self.corpus))
-    self.assertEqual({'abddd', 'abcde'}, wordle.search('.b.d.', self.corpus))
-    self.assertEqual(set(), wordle.search('.bz..', self.corpus))
-    self.assertEqual(self.corpus, wordle.search('.....', self.corpus))
+    self.assertEqual({'bbccc', 'abddd', 'abcde'}, wordle.search('.b...', self.lexicon))
+    self.assertEqual({'bbccc', 'abcde'}, wordle.search('.bc..', self.lexicon))
+    self.assertEqual({'abddd', 'abcde'}, wordle.search('.b.d.', self.lexicon))
+    self.assertEqual(set(), wordle.search('.bz..', self.lexicon))
+    self.assertEqual(self.lexicon, wordle.search('.....', self.lexicon))
 
   def test_union(self):
     self.assertEqual(set(), wordle.union([]))
@@ -46,11 +46,11 @@ class WordleTestCase(unittest.TestCase):
     self.assertEqual({'a', 'b', 'c'}, wordle.union([{'a'}, {'b'}, {'a', 'b'}, {'a', 'c'}, {'b', 'c'}]))
 
   def test_discard(self):
-    self.assertEqual(set(), wordle.discard(['.....'], self.corpus))
-    self.assertEqual({'defff', 'ghiii', 'dgggg'}, wordle.discard(['.b...'], self.corpus))
-    self.assertEqual({'defff', 'dgggg'}, wordle.discard(['.b...', '...i.'], self.corpus))
-    self.assertEqual({'dgggg'}, wordle.discard(['.b...', '...i.', '..f..'], self.corpus))
-    self.assertEqual(set(), wordle.discard(['.b...', '...i.', 'd....'], self.corpus))
+    self.assertEqual(set(), wordle.discard(['.....'], self.lexicon))
+    self.assertEqual({'defff', 'ghiii', 'dgggg'}, wordle.discard(['.b...'], self.lexicon))
+    self.assertEqual({'defff', 'dgggg'}, wordle.discard(['.b...', '...i.'], self.lexicon))
+    self.assertEqual({'dgggg'}, wordle.discard(['.b...', '...i.', '..f..'], self.lexicon))
+    self.assertEqual(set(), wordle.discard(['.b...', '...i.', 'd....'], self.lexicon))
 
   def test_tabulate(self):
     expected = {

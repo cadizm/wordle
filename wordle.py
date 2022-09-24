@@ -6,25 +6,25 @@ from itertools import chain
 from collections import defaultdict, namedtuple
 
 
-def read_corpus(infile):
+def read_lexicon(infile):
   """
   Read infile (dictionary with 1 word per line) and return its contents as a set.
   """
   return set(map(lambda line: line.strip(), open(infile).readlines()))
 
 
-def include(letters, corpus):
+def include(letters, lexicon):
   """
-  Return words in corpus that include all letters in `letters`.
+  Return words in lexicon that include all letters in `letters`.
   """
-  return set(filter(lambda word: set(word) & set(letters) == set(letters), corpus))
+  return set(filter(lambda word: set(word) & set(letters) == set(letters), lexicon))
 
 
-def exclude(letters, corpus):
+def exclude(letters, lexicon):
   """
-  Return words in corpus that exclude all letters in `letters`.
+  Return words in lexicon that exclude all letters in `letters`.
   """
-  return set(filter(lambda word: set(word) & set(letters) == set(), corpus))
+  return set(filter(lambda word: set(word) & set(letters) == set(), lexicon))
 
 
 def same_letter_occurrence(wordle):
@@ -51,11 +51,11 @@ def matches(regex):
   return lambda x: re.fullmatch(f'^{regex}$', x)
 
 
-def search(wordle, corpus):
+def search(wordle, lexicon):
   """
-  Search words in corpus matching the regular expression specified in `wordle`.
+  Search words in lexicon matching the regular expression specified in `wordle`.
   """
-  return set(filter(matches(wordle), corpus))
+  return set(filter(matches(wordle), lexicon))
 
 
 def union(sets):
@@ -65,11 +65,11 @@ def union(sets):
   return reduce(lambda x, y: x.union(y), sets, set())
 
 
-def discard(misplaced, corpus):
+def discard(misplaced, lexicon):
   """
-  Discard from corpus words matching regular expressions in list `misplaced`.
+  Discard from lexicon words matching regular expressions in list `misplaced`.
   """
-  return set(corpus) - union(map(lambda wordle: search(wordle, corpus), misplaced))
+  return set(lexicon) - union(map(lambda wordle: search(wordle, lexicon), misplaced))
 
 
 def tabulate(candidates):
@@ -120,7 +120,7 @@ def score(candidates):
   return sorted(scores, key=lambda x: x.score, reverse=True)
 
 
-corpus = read_corpus(os.path.abspath(os.path.join(os.path.dirname(__file__), '5-letter-words.txt')))
+lexicon = read_lexicon(os.path.abspath(os.path.join(os.path.dirname(__file__), '5-letter-words.txt')))
 
 def suggest(wordle, excluded, misplaced):
   """
@@ -129,7 +129,7 @@ def suggest(wordle, excluded, misplaced):
   # infer what must be included using wordle and misplaced
   included = ''.join(set(chain(wordle, *misplaced)) - set('.'))
   # remove letters in wordle from excluded
-  exclusions = exclude(set(excluded) - set(wordle), corpus)
+  exclusions = exclude(set(excluded) - set(wordle), lexicon)
   # only keep words with same letter occurrence as wordle letters when wordle overlaps excluded
   exclusion_overlap = (set(wordle) - set('.')) & set(excluded)
   if exclusion_overlap:
